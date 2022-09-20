@@ -2,13 +2,13 @@
 const exp = require("express")
 const userApi = exp.Router();
 
+//error handler
+const expressErrorHandler = require("express-async-handler")
+
+
 userApi.use(exp.json())
 //import MongoClient
 const mc = require("mongodb").MongoClient;
-
-//export
-module.exports = userApi;
-
 
 //connection string
 const databseUrl= "mongodb+srv://Alekhya:0411@cluster0.wkp3w5s.mongodb.net/?retryWrites=true&w=majority"
@@ -34,14 +34,14 @@ mc.connect(databseUrl, {useNewUrlParser:true, useUnifiedTopology:true},(err, cli
 
 
 //http://localhost:4200/users/getusers
-userApi.get('/getusers', async(req, res, next)=>{
+userApi.get('/getusers', expressErrorHandler(async(req, res, next)=>{
 
     let userList = await userCollectionObj.find().toArray()
     res.send({message: userList})
-})
+}))
 
 //http://localhost:4200/users/getusers/Ajay
-userApi.get('/getusers/:username', async(req, res, next)=>{
+userApi.get('/getusers/:username', expressErrorHandler(async(req, res, next)=>{
 
     //getting username from url
     let userName = req.params.username;
@@ -54,7 +54,7 @@ userApi.get('/getusers/:username', async(req, res, next)=>{
     else{
         res.send({message: userObj})
     }
-})
+}))
 
 
 
@@ -64,7 +64,7 @@ userApi.get('/getusers/:username', async(req, res, next)=>{
 
 
 //http:localhost:4200/users/createuser  
-userApi.post('/createuser', async(req, res, next)=>{
+userApi.post('/createuser', expressErrorHandler(async(req, res, next)=>{
 
     //getting newuser details
     let newUser = req.body;
@@ -82,10 +82,10 @@ userApi.post('/createuser', async(req, res, next)=>{
         res.send({message: "user already existed"})
     }
 
-})
+}))
 
 //http://localhost:4200/users/updateuser/<username>
-userApi.put('/updateuser/:username', async(req, res, next)=>{
+userApi.put('/updateuser/:username', expressErrorHandler(async(req, res, next)=>{
 
     //getuser name from url
     let modifieduser = req.body;
@@ -94,10 +94,10 @@ userApi.put('/updateuser/:username', async(req, res, next)=>{
     await userCollectionObj.updateOne({username:modifieduser.username}, {$set: {...modifieduser}})
     res.send({message: "user updated"})
 
-})
+}))
 
 //http://localhost:4200/users/deleteuser/Ajay
-userApi.delete('/deleteuser/:username', async(req, res, next)=>{
+userApi.delete('/deleteuser/:username',expressErrorHandler( async(req, res, next)=>{
 
     //getusername from url
     let userName = req.params.username;
@@ -106,7 +106,10 @@ userApi.delete('/deleteuser/:username', async(req, res, next)=>{
     await userCollectionObj.deleteOne({username:userName})
     res.send({message: "user deleted"})
 
-})
+}))
 
 
+
+//export
+module.exports = userApi;
 
